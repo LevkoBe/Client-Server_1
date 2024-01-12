@@ -51,8 +51,8 @@ int main()
 		return 1;
 	}
 	// Receive data from the client
-	char buffer[1024];
-	memset(buffer, 0, 1024);
+	char buffer[32767];
+	memset(buffer, 0, 32767);
 	int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 	if (bytesReceived > 0)
 	{
@@ -61,6 +61,20 @@ int main()
 		const char* response = "Hello, client! This is the server.";
 		send(clientSocket, response, (int)strlen(response), 0);
 	}
+
+	while (false)
+	{
+		char cmd = 0;
+		recv(clientSocket, &cmd, 1, 0);
+		switch (cmd)
+		{
+		case 1:
+			break;
+		default:
+			break;
+		}
+	}
+
 	// Clean up
 	closesocket(clientSocket);
 	closesocket(serverSocket);
