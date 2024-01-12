@@ -4,6 +4,7 @@
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 
+// Linking the library needed for network communication
 #pragma comment(lib, "ws2_32.lib")
 
 class ServerConnector
