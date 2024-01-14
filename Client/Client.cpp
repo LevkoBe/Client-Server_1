@@ -14,7 +14,12 @@ int main()
 	const char* message;
 	
 	message = "Hello, server! How are you?";
-	client.sendMessage(message);
+	char* message2 = new char[333001];
+	for (int i = 0; i < 333000; i++) {
+		message2[i] = 'x';
+	}
+	message2[333000] = '\0';
+	client.sendMessage(message2);
 	client.receiveMessage();
 
 	// Cleanup is in the ServerConnector destructor

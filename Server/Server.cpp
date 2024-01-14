@@ -4,9 +4,8 @@
 int main()
 {
 	ClientsHandler server;
-	server.receiveMessage();
 
-	while (false)
+	for (int i = 0; i < 100; i++)
 	{
 		char cmd = 0;
 		server.receiveMessage();

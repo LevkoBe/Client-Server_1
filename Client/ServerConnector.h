@@ -57,7 +57,18 @@ public:
 	}
 
 	void sendMessage(const char* message) {
-		send(clientSocket, message, (int)strlen(message), 0);
+		int length = (int)strlen(message);
+		if (length <= 32760) {
+			send(clientSocket, message, (int)strlen(message), 0);
+			return;
+		}
+		for (int i = 0; i < length / 32760; i++) {
+			char* sliced = new char[32761];
+			std::memcpy(sliced, message + i * 32760, 32760);
+			sliced[32760] = '\0';
+			sendMessage(std::move(sliced));
+			std::cout << "\nNew message sent\n";
+		}
 	}
 
 	void receiveMessage() {

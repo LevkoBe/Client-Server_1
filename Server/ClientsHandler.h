@@ -95,7 +95,7 @@ public:
 		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 		if (bytesReceived > 0)
 		{
-			std::cout << "Received data: " << buffer << std::endl;
+			std::cout << "Received data: "; // << buffer << std::endl;
 			// Send a response back to the client
 			const char* response = "Hello, client! This is the server.";
 			send(clientSocket, response, (int)strlen(response), 0);
