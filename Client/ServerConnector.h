@@ -56,27 +56,44 @@ public:
 		return true;
 	}
 
-	void sendMessage(const char* message) {
+	bool sendMessage(const char* message) {
 		int length = (int)strlen(message);
 		if (length <= 1024) {
-			send(clientSocket, message, (int)strlen(message), 0);
-			return;
+			try {
+				send(clientSocket, message, (int)strlen(message), 0);
+			}
+			catch (const std::exception&) {
+				return false;
+			}
+			return true;
 		}
 		for (int i = 0; i < length / 1023; i++) {
 			char* sliced = new char[1024];
 			std::memcpy(sliced, message + i * 1023, 1023);
-			sliced[1024] = '\0';
+			sliced[1023] = '\0';
 			sendMessage(std::move(sliced));
 			std::cout << "New message sent. ";
 		}
+		return true;
 	}
 
-	void receiveMessage() {
+	char* receiveMessage() {
 		char buffer[1024];
 		memset(buffer, 0, 1024);
 		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 		if (bytesReceived > 0) {
 			std::cout << "Received from server: " << buffer << std::endl;
 		}
+		return buffer;
+	}
+
+	char receiveApproval() {
+		char buffer[2]; // todo: find correct size
+		memset(buffer, 0, 2);
+		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+		if (bytesReceived > 0) {
+			std::cout << "Received from server: " << buffer << std::endl;
+		}
+		return buffer[0];
 	}
 };
