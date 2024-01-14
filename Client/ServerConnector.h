@@ -58,22 +58,22 @@ public:
 
 	void sendMessage(const char* message) {
 		int length = (int)strlen(message);
-		if (length <= 32760) {
+		if (length <= 1024) {
 			send(clientSocket, message, (int)strlen(message), 0);
 			return;
 		}
-		for (int i = 0; i < length / 32760; i++) {
-			char* sliced = new char[32761];
-			std::memcpy(sliced, message + i * 32760, 32760);
-			sliced[32760] = '\0';
+		for (int i = 0; i < length / 1023; i++) {
+			char* sliced = new char[1024];
+			std::memcpy(sliced, message + i * 1023, 1023);
+			sliced[1024] = '\0';
 			sendMessage(std::move(sliced));
-			std::cout << "\nNew message sent\n";
+			std::cout << "New message sent. ";
 		}
 	}
 
 	void receiveMessage() {
-		char buffer[32767];
-		memset(buffer, 0, 32767);
+		char buffer[1024];
+		memset(buffer, 0, 1024);
 		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 		if (bytesReceived > 0) {
 			std::cout << "Received from server: " << buffer << std::endl;

@@ -5,10 +5,11 @@ int main()
 {
 	ClientsHandler server;
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 1000; i++)
 	{
 		char cmd = 0;
 		server.receiveMessage();
+		std::cout << i << std::endl;
 		switch (cmd)
 		{
 		case 1:

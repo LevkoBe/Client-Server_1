@@ -90,8 +90,8 @@ public:
 	void receiveMessage() {
 
 		// Receive data from the client
-		char buffer[32767];
-		memset(buffer, 0, 32767);
+		char buffer[1024];
+		memset(buffer, 0, 1024);
 		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
 		if (bytesReceived > 0)
 		{
