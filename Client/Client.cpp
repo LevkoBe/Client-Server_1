@@ -6,9 +6,9 @@ int main()
 	Communicator communicator;
 
 	const char* filename;
-	filename = "some filename";
+	filename = "doc.txt";
 
-	communicator.get(filename);
+	std::cout << communicator.get(filename);
 
 	return 0;
 }

@@ -77,20 +77,56 @@ public:
 		return true;
 	}
 
-	char* receiveMessage() {
+	bool sendChunkedData(const char* data, int dataSize, int chunkSize, char operationType) {
+		// Send operation type
+		if (send(clientSocket, reinterpret_cast<const char*>(&operationType), sizeof(char), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send type of the operation." << std::endl;
+			return false;
+		}
+		// Send chunk size
+		if (send(clientSocket, reinterpret_cast<const char*>(&chunkSize), sizeof(int), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send chunk size." << std::endl;
+			return false;
+		}
+		// Send total size first
+		if (send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(int), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send total size." << std::endl;
+			return false;
+		}
+
+		int totalSent = 0;
+
+		while (totalSent < dataSize) {
+			int remaining = dataSize - totalSent;
+			int currentChunkSize = (remaining < chunkSize) ? remaining : chunkSize;
+
+			if (send(clientSocket, data + totalSent, currentChunkSize, 0) == SOCKET_ERROR) {
+				std::cerr << "Failed to send chunked data." << std::endl;
+				break;
+			}
+
+			totalSent += currentChunkSize;
+			std::cout << "Sent chunk of size " << currentChunkSize << std::endl;
+		}
+		return true;
+	}
+
+
+	std::string receiveMessage() {
 		char buffer[1024];
-		memset(buffer, 0, 1024);
-		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+		memset(buffer, 0, sizeof(buffer));
+		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 		if (bytesReceived > 0) {
 			std::cout << "Received from server: " << buffer << std::endl;
 		}
-		return buffer;
+		return std::string(buffer);
 	}
+
 
 	char receiveApproval() {
 		char buffer[2]; // todo: find correct size
 		memset(buffer, 0, 2);
-		int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+		int bytesReceived = recv(clientSocket, buffer, sizeof(char), 0);
 		if (bytesReceived > 0) {
 			std::cout << "Received from server: " << buffer << std::endl;
 		}
