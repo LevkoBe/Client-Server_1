@@ -56,7 +56,6 @@ class ClientsHandler
 
 public:
 	ClientsHandler() {
-
 		// Initialize Winsock
 		if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		{
@@ -89,16 +88,13 @@ public:
 
 	char receiveOptionType() {
 		// Receive data from the client
-		char buffer[2];
-		memset(buffer, 0, 2);
-		int bytesReceived = recv(clientSocket, buffer, sizeof(char), 0);
-		buffer[1] = '\0';
+		char option;
+		int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&option), sizeof(char), 0);
 		if (bytesReceived > 0) {
-			std::cout << "Received data: " << buffer << std::endl;
+			std::cout << "-!----------Received data: " << option << std::endl;
 		}
-		return buffer[0];
+		return option;
 	}
-
 
 	std::string receiveChunkedData() {
 		// Receive chunk size
@@ -117,17 +113,19 @@ public:
 			return "";
 		}
 
-		std::cout << "Chunk size received: " << chunkSize << std::endl;
-		std::cout << "Total size received: " << totalSize << std::endl;
+		std::cout << "-!-Chunk size received: " << chunkSize << std::endl;
+		std::cout << "-!-Total size received: " << totalSize << std::endl;
 
 		// Receive message
 		std::string assembledData;
 		int totalReceived = 0;
 
-		char* buffer = nullptr;
+		char* buffer = new char[chunkSize + 1];
 		while (totalReceived < totalSize) {
-			buffer = new char[chunkSize];
-			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+			int remaining = totalSize - totalReceived;
+			int currentChunkSize = (remaining < chunkSize) ? remaining : chunkSize;
+			int bytesReceived = recv(clientSocket, buffer, currentChunkSize, 0);
+			buffer[bytesReceived] = '\0';
 
 			if (bytesReceived == SOCKET_ERROR || bytesReceived == 0) {
 				std::cerr << "Error in receiving chunked data." << std::endl;
@@ -136,34 +134,50 @@ public:
 
 			assembledData.append(buffer, bytesReceived);
 			totalReceived += bytesReceived;
-			std::cout << "Received chunk of size " << bytesReceived << std::endl;
+			//std::cout << "Received chunk of size " << bytesReceived << std::endl;
 		}
 
-		std::cout << "Assembled data on the server: " << assembledData << std::endl;
+		std::cout << "-!-Assembled data on the server: " << assembledData << std::endl;
 		delete[] buffer;
 		return assembledData;
 	}
 
-	bool sendMessage(const char* message) {
-		int length = (int)strlen(message);
-		if (length <= 1024) {
-			try {
-				send(clientSocket, message, (int)strlen(message), 0);
-			}
-			catch (const std::exception&) {
-				return false;
-			}
-			return true;
+	bool sendChunkedData(std::string& messageStr, int chunkSize, char operationType) {
+		const char* message = messageStr.c_str();
+		int dataSize = strlen(message);
+		// Send operation type
+		if (send(clientSocket, reinterpret_cast<const char*>(&operationType), sizeof(char), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send type of the operation." << std::endl;
+			return false;
 		}
-		for (int i = 0; i < length / 1023; i++) {
-			char* sliced = new char[1024];
-			std::memcpy(sliced, message + i * 1023, 1023);
-			sliced[1023] = '\0';
-			sendMessage(std::move(sliced)); // question: memory deallocation
-			delete[] sliced;
-			std::cout << "New message sent. ";
+		// Send chunk size
+		if (send(clientSocket, reinterpret_cast<const char*>(&chunkSize), sizeof(int), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send chunk size." << std::endl;
+			return false;
 		}
+		// Send total size first
+		if (send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(int), 0) == SOCKET_ERROR) {
+			std::cerr << "Failed to send total size." << std::endl;
+			return false;
+		}
+
+		int totalSent = 0;
+
+		while (totalSent < dataSize) {
+			int remaining = dataSize - totalSent;
+			int currentChunkSize = (remaining < chunkSize) ? remaining : chunkSize;
+
+			if (send(clientSocket, message + totalSent, currentChunkSize, 0) == SOCKET_ERROR) {
+				std::cerr << "Failed to send chunked data." << std::endl;
+				break;
+			}
+
+			totalSent += currentChunkSize;
+			//std::cout << "Sent chunk of size " << currentChunkSize << std::endl;
+		}
+
 		return true;
 	}
+
 };
 

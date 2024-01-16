@@ -5,35 +5,40 @@ int main()
 {
 	Executor executor;
 
-	for (int i = 0; i < 100; i++) // New request
+	while (true) // New request
 	{
-		char optionType = executor.receiveOptionType(); // todo: remake into std::string
+		bool running = true;
+		char optionType = executor.receiveOptionType();
 		std::string message = executor.receiveMessage();
-		std::cout << i << std::endl;
+		std::string response = std::string();
 		switch (optionType)
 		{
 		case 'g':
-			executor.get("serverFolder/", message);
+			executor.get(executor.fullPath(message));
 			break;
 		case 'l':
-			executor.list(message);
+			response = executor.list(executor.fullPath(message));
 			break;
 		case 'f':
-			executor.file(message);
+			response = executor.file(message);
 			break;
 		case 'd':
-			executor.directory(message);
+			response = executor.directory(message);
 			break;
 		case 'r':
-			executor.remove(message);
+			response = executor.remove(message);
 			break;
 		case 'i':
-			executor.info(message);
+			//response = executor.info(message);
 			break;
+		case '-':
+			running = false;
 		default:
 			break;
 		}
-		executor.sendMessage();
+		if (!running) {
+			break;
+		}
 	}
 
 	return 0;
