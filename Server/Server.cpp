@@ -20,7 +20,7 @@ int main()
 			response = executor.list(executor.fullPath(message));
 			break;
 		case 'f':
-			response = executor.file(message);
+			response = executor.file(executor.fullPath(message));
 			break;
 		case 'd':
 			response = executor.directory(message);

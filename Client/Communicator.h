@@ -22,7 +22,7 @@ class Communicator
 	ServerConnector client;
 	int CHUNK_SIZE = 10;
 
-	std::vector<std::string> splitString(const std::string& str, char delimiter = '|') {
+	std::vector<std::string> splitString(const std::string& str, char delimiter = '\n') {
 		std::string part;
 		std::vector<std::string> parts;
 		std::istringstream stream(str);
@@ -66,13 +66,15 @@ public:
 		return str;
 	}
 
-	bool put(const std::string& filename, std::string& content) { // creates file with data
-		std::string messageStr = filename + '|' + content;
-		return client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');
+	std::string put(const std::string& filename, const std::string& content) { // creates file with data
+		std::string messageStr = filename + '\n' + content;
+		client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');
+		client.receiveOptionType();
+		return client.receiveChunkedData();
 	}
 
 	bool put(const Content type, const std::string& filename) { // creates empty file/folder
-		std::string messageStr = filename + '|';
+		std::string messageStr = filename + '\n';
 		switch (type) {
 		case File:
 			client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');

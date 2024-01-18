@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <vector>
 #include "ClientsHandler.h"
@@ -15,6 +16,18 @@ enum Content {
 class Executor
 {
 	ClientsHandler server;
+
+	std::vector<std::string> splitStringInTwo(const std::string& str, char delimiter = '\n') {
+		std::string part;
+		std::vector<std::string> parts;
+		std::istringstream stream(str);
+
+		std::getline(stream, part, delimiter); // read the filename
+		parts.push_back(part);
+		std::getline(stream, part, '\0'); // read all the rest
+		parts.push_back(part);
+		return parts;
+	}
 public:
 	Executor() {};
 
@@ -22,7 +35,7 @@ public:
 		return server.receiveChunkedData();
 	}
 
-	void sendMessage(std::string& message, const char operationType = '-') {
+	void sendMessage(const std::string& message, const char operationType = '-') {
 		server.sendChunkedData(message, 10, operationType);
 	}
 
@@ -82,8 +95,32 @@ public:
 		}
 	}
 
-	std::string file(const std::string& str) { // const std::string& name, const std::string& content
-		return std::string(); // operation success -> 1/0
+	std::string file(const std::string& str) {
+		std::vector<std::string> file = splitStringInTwo(str);
+		std::string message;
+
+		if (file.size() != 2) {
+			message = "Sorry, the message received is: '" + str + "', but expected were name and content of a file.";
+			sendMessage(message);
+			return message;
+		}
+
+		std::string filename = file[0];
+		std::string fileContent = file[1];
+
+		std::ofstream outputFile(filename);
+		if (!outputFile.is_open()) {
+			message = "Sorry, the file is already in use.";
+			sendMessage(message);
+			return message;
+		}
+
+		outputFile << fileContent;
+		outputFile.close();
+
+		message = "File succesfully written!";
+		sendMessage(message);
+		return message;
 	}
 
 	std::string directory(const std::string& name) {

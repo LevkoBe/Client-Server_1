@@ -142,7 +142,7 @@ public:
 		return assembledData;
 	}
 
-	bool sendChunkedData(std::string& messageStr, int chunkSize, char operationType) {
+	bool sendChunkedData(const std::string& messageStr, const int chunkSize, const char operationType) {
 		const char* message = messageStr.c_str();
 		int dataSize = strlen(message);
 		// Send operation type
