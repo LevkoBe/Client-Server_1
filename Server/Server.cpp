@@ -28,7 +28,7 @@ int main()
 			executor.remove(executor.fullPath(message)); // change return type
 			break;
 		case 'i':
-			//response = executor.info(message);
+			executor.info(executor.fullPath(message));
 			break;
 		case '-':
 			running = false;

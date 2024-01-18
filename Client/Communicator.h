@@ -95,15 +95,16 @@ public:
 		return client.receiveChunkedData();
 	}
 
-	std::vector<std::string> info(const std::string& filename) {
+	std::string info(const std::string& filename) {
 		std::string messageStr = filename;
 		client.sendChunkedData(messageStr, CHUNK_SIZE, 'i');
-		std::string str = client.receiveChunkedData();
-		return splitString(str);
+		client.receiveOptionType();
+		std::string info = client.receiveChunkedData();
+		return info;
 	}
 
 	void stop() {
-		std::string hack = "###Stop server###";
+		std::string hack = "###Stop the server###";
 		client.sendChunkedData(hack, CHUNK_SIZE, '-');
 	}
 };

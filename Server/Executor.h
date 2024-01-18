@@ -4,6 +4,7 @@
 #include <sstream>
 #include <filesystem>
 #include <vector>
+#include <ctime>
 #include "ClientsHandler.h"
 
 namespace fs = std::filesystem;
@@ -143,14 +144,51 @@ public:
 			message = "Removed succcesfully.";
 		}
 		catch (const std::exception& e) {
-			message = "Error occured.";
+			message = "Error occured in deleting file/folder.";
 			std::cerr << "Error deleting file/folder: " << e.what() << std::endl;
 		}
 		sendMessage(message);
 	}
 	
-	std::vector<std::string> info(const std::string& str) { // const Content type, const std::string& name, const std::string& content
-		return std::vector<std::string>(); // Key-Value pairs
+	void info(const std::string& filename) {
+		std::stringstream information;
+		std::string message;
+
+		try {
+			fs::path filePath = filename;
+			std::string lastMod = std::to_string(fs::last_write_time(filePath).time_since_epoch().count());
+
+			if (fs::exists(filePath)) {
+				information << "File/Directory Information for: " << filePath << "\n";
+				information << "--------------------------------\n";
+				information << "Size: " << fs::file_size(filePath) << " bytes\n";
+
+				auto lastWriteTime = fs::last_write_time(filePath);
+				auto lastWriteTimeTT = std::chrono::time_point_cast<std::chrono::system_clock::duration>(lastWriteTime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+				auto lastWriteTimeTP = std::chrono::system_clock::to_time_t(lastWriteTimeTT);
+
+				std::tm lastWriteTimeTM;
+				if (localtime_s(&lastWriteTimeTM, &lastWriteTimeTP) == 0) {
+					char buffer[80];
+					std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &lastWriteTimeTM);
+
+					information << "Last Modified: " << buffer << "\n";
+				}
+				else {
+					information << "Error converting time.\n";
+				}				information << "Is Directory: " << (fs::is_directory(filePath) ? "Yes" : "No") << "\n";
+				information << "Is Regular File: " << (fs::is_regular_file(filePath) ? "Yes" : "No") << "\n";
+			}
+			else {
+				information << "Error: File or directory not found.";
+			}
+			message = information.str();
+		}
+		catch (const std::exception& e) {
+			message = "Error occured in getting info.";
+			std::cerr << "Error getting info about the file/folder: " << e.what() << std::endl;
+		}
+		sendMessage(message);
 	}
 
 

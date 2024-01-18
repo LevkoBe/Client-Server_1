@@ -54,6 +54,10 @@ int main()
 			filename = "emptyDirectory";
 			std::cout << communicator.deleteFile(filename);
 			break;
+		case 7:
+			filename = "doc.txt";
+			std::cout << communicator.info(filename);
+			break;
 		default:
 			break;
 		}
