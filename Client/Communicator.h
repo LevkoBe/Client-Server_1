@@ -73,17 +73,19 @@ public:
 		return client.receiveChunkedData();
 	}
 
-	bool put(const Content type, const std::string& filename) { // creates empty file/folder
-		std::string messageStr = filename + '\n';
+	std::string put(const Content type, const std::string& filename) { // creates empty file/folder
+		std::string messageStr = filename;
 		switch (type) {
 		case File:
+			messageStr += '\n';
 			client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');
 			break;
 		case Directory:
 			client.sendChunkedData(messageStr, CHUNK_SIZE, 'd');
 			break;
 		}
-		return client.receiveApproval();
+		client.receiveOptionType();
+		return client.receiveChunkedData();
 	}
 
 	bool deleteFile(const std::string& filename) {

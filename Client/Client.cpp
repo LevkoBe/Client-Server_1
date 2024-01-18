@@ -42,6 +42,14 @@ int main()
 			content = "This is some content.";
 			std::cout << communicator.put(filename, content);
 			break;
+		case 4:
+			filename = "emptyFile";
+			std::cout << communicator.put(File, filename);
+			break;
+		case 5:
+			filename = "emptyDirectory";
+			std::cout << communicator.put(Directory, filename);
+			break;
 		default:
 			break;
 		}

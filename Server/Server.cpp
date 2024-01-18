@@ -23,7 +23,7 @@ int main()
 			response = executor.file(executor.fullPath(message));
 			break;
 		case 'd':
-			response = executor.directory(message);
+			response = executor.directory(executor.fullPath(message));
 			break;
 		case 'r':
 			response = executor.remove(message);

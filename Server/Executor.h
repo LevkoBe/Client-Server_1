@@ -123,8 +123,20 @@ public:
 		return message;
 	}
 
-	std::string directory(const std::string& name) {
-		return std::string(); // operation success -> 1/0
+	std::string directory(const std::string& folderPath) {
+		std::string message;
+
+		try {
+			fs::create_directory(folderPath);
+			sendMessage(message);
+			message = "Folder created succesfully!";
+			return message;
+		}
+		catch (const std::exception& e) {
+			sendMessage(message);
+			std::cerr << "Error creating folder: " << e.what() << std::endl;
+			return message;
+		}
 	}
 
 	std::string remove(const std::string& str) { // const std::string& name
