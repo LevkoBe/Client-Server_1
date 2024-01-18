@@ -54,7 +54,7 @@ public:
 			}
 			client.receiveChunkedData(); // content of the file
 		}
-		return "The request was processed successfully.\n";
+		return "";
 	}
 
 	std::string list(const std::string& filename) {

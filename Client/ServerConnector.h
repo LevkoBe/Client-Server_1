@@ -110,8 +110,8 @@ public:
 			return "";
 		}
 
-		std::cout << "-!-Chunk size received: " << chunkSize << std::endl;
-		std::cout << "-!-Total size received: " << totalSize << std::endl;
+		std::cout << "[------------------Chunk size received: " << chunkSize << "------------------]" << std::endl;
+		std::cout << "[------------------Total size received: " << totalSize << "------------------]" << std::endl;
 
 		// Receive message
 		std::string assembledData = "";
@@ -134,7 +134,7 @@ public:
 			//std::cout << "." << bytesReceived;
 		}
 
-		std::cout << "-!-Assembled data on the client:\n" << assembledData << std::endl;
+		std::cout << "[------------Assembled data on the client: ------------]\n" << assembledData << std::endl;
 		delete[] buffer;
 		return assembledData;
 	}
@@ -144,7 +144,7 @@ public:
 		char option;
 		int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&option), sizeof(char), 0);
 		if (bytesReceived > 0) {
-			std::cout << "-!----------Received data: " << option << std::endl;
+			std::cout << "[------------Received data: " << option << "------------]" << std::endl;
 		}
 		return option;
 	}
@@ -153,7 +153,7 @@ public:
 		char approval;
 		int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&approval), sizeof(char), 0);
 		if (bytesReceived > 0) {
-			std::cout << "-!----------Received data: " << approval << std::endl;
+			std::cout << "[------------Received data: " << approval << "------------]" << std::endl;
 		}
 		return approval;
 	}
