@@ -79,30 +79,28 @@ public:
 		file.close();
 	}
 
-	std::string list(const std::string& directory) {
+	void list(const std::string& directory) {
 		std::string result;
 		try {
 			for (const auto& entry : fs::directory_iterator(directory)) {
 				result += entry.path().filename().string() + '\n';
 			}
-			sendMessage(result);
-			return result;
 		}
 		catch (const std::exception& e) {
 			result = "Error: " + std::string(e.what());
-			sendMessage(result);
-			return result;
+			return;
 		}
+		sendMessage(result);
 	}
 
-	std::string file(const std::string& str) {
+	void file(const std::string& str) {
 		std::vector<std::string> file = splitStringInTwo(str);
 		std::string message;
 
 		if (file.size() != 2) {
 			message = "Sorry, the message received is: '" + str + "', but expected were name and content of a file.";
 			sendMessage(message);
-			return message;
+			return;
 		}
 
 		std::string filename = file[0];
@@ -112,7 +110,7 @@ public:
 		if (!outputFile.is_open()) {
 			message = "Sorry, the file is already in use.";
 			sendMessage(message);
-			return message;
+			return;
 		}
 
 		outputFile << fileContent;
@@ -120,27 +118,35 @@ public:
 
 		message = "File succesfully written!";
 		sendMessage(message);
-		return message;
+		return;
 	}
 
-	std::string directory(const std::string& folderPath) {
+	void directory(const std::string& folderPath) {
 		std::string message;
 
 		try {
 			fs::create_directory(folderPath);
-			sendMessage(message);
 			message = "Folder created succesfully!";
-			return message;
 		}
 		catch (const std::exception& e) {
-			sendMessage(message);
+			message = "Error creating folder.";
 			std::cerr << "Error creating folder: " << e.what() << std::endl;
-			return message;
 		}
+		sendMessage(message);
 	}
 
-	std::string remove(const std::string& str) { // const std::string& name
-		return std::string(); // operation success -> 1/0
+	void remove(const std::string& folderPath) {
+		std::string message;
+
+		try {
+			fs::remove_all(folderPath);
+			message = "Removed succcesfully.";
+		}
+		catch (const std::exception& e) {
+			message = "Error occured.";
+			std::cerr << "Error deleting file/folder: " << e.what() << std::endl;
+		}
+		sendMessage(message);
 	}
 	
 	std::vector<std::string> info(const std::string& str) { // const Content type, const std::string& name, const std::string& content

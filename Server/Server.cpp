@@ -10,23 +10,22 @@ int main()
 		bool running = true;
 		char optionType = executor.receiveOptionType();
 		std::string message = executor.receiveMessage();
-		std::string response = std::string();
 		switch (optionType)
 		{
 		case 'g':
 			executor.get(executor.fullPath(message));
 			break;
 		case 'l':
-			response = executor.list(executor.fullPath(message));
+			executor.list(executor.fullPath(message));
 			break;
 		case 'f':
-			response = executor.file(executor.fullPath(message));
+			executor.file(executor.fullPath(message));
 			break;
 		case 'd':
-			response = executor.directory(executor.fullPath(message));
+			executor.directory(executor.fullPath(message));
 			break;
 		case 'r':
-			response = executor.remove(message);
+			executor.remove(executor.fullPath(message)); // change return type
 			break;
 		case 'i':
 			//response = executor.info(message);

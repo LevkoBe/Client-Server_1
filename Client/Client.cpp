@@ -50,6 +50,10 @@ int main()
 			filename = "emptyDirectory";
 			std::cout << communicator.put(Directory, filename);
 			break;
+		case 6:
+			filename = "emptyDirectory";
+			std::cout << communicator.deleteFile(filename);
+			break;
 		default:
 			break;
 		}

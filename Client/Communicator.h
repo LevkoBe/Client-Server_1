@@ -88,10 +88,11 @@ public:
 		return client.receiveChunkedData();
 	}
 
-	bool deleteFile(const std::string& filename) {
+	std::string deleteFile(const std::string& filename) {
 		std::string messageStr = filename; // remove
 		client.sendChunkedData(messageStr, CHUNK_SIZE, 'r');
-		return client.receiveApproval();
+		client.receiveOptionType();
+		return client.receiveChunkedData();
 	}
 
 	std::vector<std::string> info(const std::string& filename) {
