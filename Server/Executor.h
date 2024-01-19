@@ -49,7 +49,8 @@ public:
 	}
 
 	void get(const std::string& filename) {
-		const int chunkSize = 1024; // setting: chunkSize = 1024 * 1024;
+		const int chunkSize = 1024 * 1024; // setting: chunkSize = 1024 * 1024;
+		//const int chunkSize = 10 * 1024 * 1024; // setting: chunkSize = 1024 * 1024;
 		char* buffer = new char[chunkSize + 1];
 
 		std::ifstream file(filename, std::ios::binary);
@@ -72,9 +73,7 @@ public:
 				std::string message = buffer;
 				sendMessage(message, indicator);
 			}
-
 		}
-
 		delete[] buffer;
 
 		file.close();
@@ -120,6 +119,34 @@ public:
 		message = "File succesfully written!";
 		sendMessage(message);
 		return;
+	}
+
+	void addToFile(const std::string& str) {
+		std::vector<std::string> file = splitStringInTwo(str);
+		std::string message;
+
+		if (file.size() != 2) {
+			message = "Sorry, not received: 1. file name, 2. file content;\n";
+			sendMessage(message);
+			return;
+		}
+
+		std::string filename = file[0];
+		std::string fileContent = file[1];
+		std::ofstream outputFile(filename, std::ios::app);
+		if (!outputFile.is_open()) {
+			message = "Sorry, the file is already in use.";
+			sendMessage(message);
+			return;
+		}
+
+		outputFile << fileContent;
+		outputFile.close();
+
+		message = "File succesfully written!";
+		sendMessage(message);
+		return;
+
 	}
 
 	void directory(const std::string& folderPath) {

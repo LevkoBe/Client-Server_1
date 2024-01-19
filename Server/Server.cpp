@@ -30,8 +30,12 @@ int main()
 		case 'i':
 			executor.info(executor.fullPath(message));
 			break;
+		case 'a':
+			executor.addToFile(executor.fullPath(message));
+			break;
 		case '-':
 			running = false;
+			break;
 		default:
 			break;
 		}
