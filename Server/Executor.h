@@ -75,7 +75,7 @@ public:
 				char indicator = (!file.eof()) ? '+' : '-';
 				std::cout << "chunk " << indicator << std::endl;
 				std::string message = buffer;
-				sendMessage(message, indicator);
+				sendMessage(message, clientSocket, indicator);
 			}
 		}
 		delete[] buffer;

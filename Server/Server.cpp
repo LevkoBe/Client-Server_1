@@ -68,3 +68,6 @@ int main()
 
 	return 0;
 }
+
+ //cd C:\Users\1levk\source\repos\Client-Server_1\x64\Debug
+ //Client.exe
