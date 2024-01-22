@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 
@@ -10,7 +11,7 @@
 class ClientsHandler
 {
 	WSADATA wsaData;
-	SOCKET clientSocket;
+	std::vector<SOCKET> clientSockets;
 	SOCKET serverSocket;
 	int port;
 
@@ -42,18 +43,6 @@ class ClientsHandler
 		return true;
 	}
 
-	bool acceptClientConnection() {
-		clientSocket = accept(serverSocket, nullptr, nullptr);
-		if (clientSocket == INVALID_SOCKET)
-		{
-			std::cerr << "Accept failed with error: " << WSAGetLastError() << std::endl;
-			closesocket(serverSocket);
-			WSACleanup();
-			return false;
-		}
-		return true;
-	}
-
 public:
 	ClientsHandler() {
 		// Initialize Winsock
@@ -77,16 +66,31 @@ public:
 		if (!listenIncomingConnections()) return;
 		std::cout << "Server is listening on port " << port << std::endl;
 
-		if (!acceptClientConnection()) return;
+		// if (!acceptClientConnection()) return;
+	}
+
+	SOCKET acceptClientConnection() {
+		SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
+		if (clientSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Accept failed with error: " << WSAGetLastError() << std::endl;
+			//closesocket(serverSocket);
+			//WSACleanup();
+			return INVALID_SOCKET;
+		}
+		clientSockets.push_back(clientSocket);
+		return clientSocket;
 	}
 
 	~ClientsHandler() {
-		closesocket(clientSocket);
+		for (auto& clientSocket : clientSockets) {
+			closesocket(clientSocket);
+		}
 		closesocket(serverSocket);
 		WSACleanup();
 	}
 
-	char receiveOptionType() {
+	char receiveOptionType(SOCKET clientSocket) {
 		// Receive data from the client
 		char option;
 		int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&option), sizeof(char), 0);
@@ -96,7 +100,7 @@ public:
 		return option;
 	}
 
-	std::string receiveChunkedData() {
+	std::string receiveChunkedData(SOCKET clientSocket) {
 		// Receive chunk size
 		int chunkSize;
 		int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&chunkSize), sizeof(int), 0);
@@ -142,7 +146,7 @@ public:
 		return assembledData;
 	}
 
-	bool sendChunkedData(const std::string& messageStr, const int chunkSize, const char operationType) {
+	bool sendChunkedData(const std::string& messageStr, const int chunkSize, const char operationType, SOCKET clientSocket) {
 		const char* message = messageStr.c_str();
 		int dataSize = strlen(message);
 		// Send operation type

@@ -32,23 +32,27 @@ class Executor
 public:
 	Executor() {};
 
-	std::string receiveMessage() {
-		return server.receiveChunkedData();
+	SOCKET acceptClientConnection() {
+		return server.acceptClientConnection();
 	}
 
-	void sendMessage(const std::string& message, const char operationType = '-') {
-		server.sendChunkedData(message, 10, operationType);
+	std::string receiveMessage(SOCKET clientSocket) {
+		return server.receiveChunkedData(clientSocket);
 	}
 
-	char receiveOptionType() {
-		return server.receiveOptionType();
+	void sendMessage(const std::string& message, SOCKET clientSocket, const char operationType = '-') {
+		server.sendChunkedData(message, 10, operationType, clientSocket);
+	}
+
+	char receiveOptionType(SOCKET clientSocket) {
+		return server.receiveOptionType(clientSocket);
 	}
 
 	std::string fullPath(const std::string& filename) {
 		return (fs::path("serverFolder/") / filename).string();
 	}
 
-	void get(const std::string& filename) {
+	void get(const std::string& filename, SOCKET clientSocket) {
 		const int chunkSize = 1024 * 1024; // setting: chunkSize = 1024 * 1024;
 		//const int chunkSize = 10 * 1024 * 1024; // setting: chunkSize = 1024 * 1024;
 		char* buffer = new char[chunkSize + 1];
@@ -57,7 +61,7 @@ public:
 
 		if (!file.is_open()) {
 			std::string message = "Error: unable to open file.";
-			sendMessage(message);
+			sendMessage(message, clientSocket);
 			delete[] buffer;
 			return;
 		}
@@ -79,7 +83,7 @@ public:
 		file.close();
 	}
 
-	void list(const std::string& directory) {
+	void list(const std::string& directory, SOCKET clientSocket) {
 		std::string result;
 		try {
 			for (const auto& entry : fs::directory_iterator(directory)) {
@@ -90,16 +94,16 @@ public:
 			result = "Error: " + std::string(e.what());
 			return;
 		}
-		sendMessage(result);
+		sendMessage(result, clientSocket);
 	}
 
-	void file(const std::string& str) {
+	void file(const std::string& str, SOCKET clientSocket) {
 		std::vector<std::string> file = splitStringInTwo(str);
 		std::string message;
 
 		if (file.size() != 2) {
 			message = "Sorry, the message received is: '" + str + "', but expected were name and content of a file.";
-			sendMessage(message);
+			sendMessage(message, clientSocket);
 			return;
 		}
 
@@ -109,7 +113,7 @@ public:
 		std::ofstream outputFile(filename);
 		if (!outputFile.is_open()) {
 			message = "Sorry, the file is already in use.";
-			sendMessage(message);
+			sendMessage(message, clientSocket);
 			return;
 		}
 
@@ -117,17 +121,17 @@ public:
 		outputFile.close();
 
 		message = "File succesfully written!";
-		sendMessage(message);
+		sendMessage(message, clientSocket);
 		return;
 	}
 
-	void addToFile(const std::string& str) {
+	void addToFile(const std::string& str, SOCKET clientSocket) {
 		std::vector<std::string> file = splitStringInTwo(str);
 		std::string message;
 
 		if (file.size() != 2) {
 			message = "Sorry, not received: 1. file name, 2. file content;\n";
-			sendMessage(message);
+			sendMessage(message, clientSocket);
 			return;
 		}
 
@@ -136,7 +140,7 @@ public:
 		std::ofstream outputFile(filename, std::ios::app);
 		if (!outputFile.is_open()) {
 			message = "Sorry, the file is already in use.";
-			sendMessage(message);
+			sendMessage(message, clientSocket);
 			return;
 		}
 
@@ -144,12 +148,12 @@ public:
 		outputFile.close();
 
 		message = "File succesfully written!";
-		sendMessage(message);
+		sendMessage(message, clientSocket);
 		return;
 
 	}
 
-	void directory(const std::string& folderPath) {
+	void directory(const std::string& folderPath, SOCKET clientSocket) {
 		std::string message;
 
 		try {
@@ -160,10 +164,10 @@ public:
 			message = "Error creating folder.";
 			std::cerr << "Error creating folder: " << e.what() << std::endl;
 		}
-		sendMessage(message);
+		sendMessage(message, clientSocket);
 	}
 
-	void remove(const std::string& folderPath) {
+	void remove(const std::string& folderPath, SOCKET clientSocket) {
 		std::string message;
 
 		try {
@@ -174,10 +178,10 @@ public:
 			message = "Error occured in deleting file/folder.";
 			std::cerr << "Error deleting file/folder: " << e.what() << std::endl;
 		}
-		sendMessage(message);
+		sendMessage(message, clientSocket);
 	}
 	
-	void info(const std::string& filename) {
+	void info(const std::string& filename, SOCKET clientSocket) {
 		std::stringstream information;
 		std::string message;
 
@@ -215,7 +219,7 @@ public:
 			message = "Error occured in getting info.";
 			std::cerr << "Error getting info about the file/folder: " << e.what() << std::endl;
 		}
-		sendMessage(message);
+		sendMessage(message, clientSocket);
 	}
 
 

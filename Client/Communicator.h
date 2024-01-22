@@ -21,7 +21,7 @@ enum Content {
 class Communicator
 {
 	ServerConnector client;
-	int CHUNK_SIZE = 10;
+	int CHUNK_SIZE = 10; // setting
 
 	std::vector<std::string> splitString(const std::string& str, char delimiter = '\n') {
 		std::string part;
