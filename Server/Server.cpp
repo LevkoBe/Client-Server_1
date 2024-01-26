@@ -35,7 +35,7 @@ void handleClient(SOCKET clientSocket) {
 			executor.addToFile(executor.fullPath(message), clientSocket);
 			break;
 		case '-':
-			//running = false;
+			running = false;
 			break;
 		default:
 			break;

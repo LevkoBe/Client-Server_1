@@ -134,7 +134,6 @@ public:
 			//std::cout << "." << bytesReceived;
 		}
 
-		std::cout << "[------------Assembled data on the client: ------------]\n" << assembledData << std::endl;
 		delete[] buffer;
 		return assembledData;
 	}
