@@ -6,6 +6,7 @@ Executor executor;
 
 void handleClient(SOCKET clientSocket) {
 
+	std::string username = "";
 	while (true) // New request
 	{
 		bool running = true;
@@ -13,26 +14,30 @@ void handleClient(SOCKET clientSocket) {
 		std::string message = executor.receiveMessage(clientSocket);
 		switch (optionType)
 		{
+		case 'u': // user registration
+			username = message;
+			executor.checkFolder(username, clientSocket);
+			break;
 		case 'g':
-			executor.get(executor.fullPath(message), clientSocket);
+			executor.get(executor.fullPath(message, username), clientSocket);
 			break;
 		case 'l':
-			executor.list(executor.fullPath(message), clientSocket);
+			executor.list(executor.fullPath(message, username), clientSocket);
 			break;
 		case 'f':
-			executor.file(executor.fullPath(message), clientSocket);
+			executor.file(executor.fullPath(message, username), clientSocket);
 			break;
 		case 'd':
-			executor.directory(executor.fullPath(message), clientSocket);
+			executor.directory(executor.fullPath(message, username), clientSocket);
 			break;
 		case 'r':
-			executor.remove(executor.fullPath(message), clientSocket); // change return type
+			executor.remove(executor.fullPath(message, username), clientSocket); // change return type
 			break;
 		case 'i':
-			executor.info(executor.fullPath(message), clientSocket);
+			executor.info(executor.fullPath(message, username), clientSocket);
 			break;
 		case 'a':
-			executor.addToFile(executor.fullPath(message), clientSocket);
+			executor.addToFile(executor.fullPath(message, username), clientSocket);
 			break;
 		case '-':
 			running = false;

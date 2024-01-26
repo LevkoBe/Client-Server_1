@@ -58,6 +58,13 @@ public:
 		return messageStr;
 	}
 
+	std::string authorize(std::string& username) {
+
+		client.sendChunkedData(username, CHUNK_SIZE, 'u');
+		client.receiveOptionType();
+		return client.receiveChunkedData();
+	}
+
 	std::string list(const std::string& filename) {
 		std::string messageStr = filename;
 		client.sendChunkedData(messageStr, CHUNK_SIZE, 'l');

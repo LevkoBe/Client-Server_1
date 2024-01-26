@@ -35,6 +35,12 @@ int main() {
 
     std::string filename;
     std::string content;
+    std::string username;
+    std::cout << "Please, enter your username: ";
+    std::cin >> username;
+    std::cout << std::endl;
+    communicator.authorize(username);
+
 
     int command;
     while (true) {

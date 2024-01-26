@@ -48,8 +48,29 @@ public:
 		return server.receiveOptionType(clientSocket);
 	}
 
-	std::string fullPath(const std::string& filename) {
-		return (fs::path("serverFolder/") / filename).string();
+	void checkFolder(const std::string& username, SOCKET clientSocket) {
+		std::string folderPath = "serverFolder/" + username;
+		std::string message;
+
+		if (fs::exists(folderPath)) {
+			message = "Folder '" + folderPath + "' already exists.\n";
+		}
+		else {
+			if (fs::create_directory(folderPath)) {
+				message = "Folder '" + folderPath + "' created successfully.\n";
+			}
+			else {
+				message = "Failed to create folder '" + folderPath + "'.\n";
+			}
+		}
+		sendMessage(message, clientSocket);
+	}
+
+	std::string fullPath(const std::string& filename, const std::string& username) {
+		if (username == "adminPassword") {
+			return (fs::path("serverFolder/") / filename).string();
+		}
+		return (fs::path("serverFolder/" + username + "/") / filename).string();
 	}
 
 	void get(const std::string& filename, SOCKET clientSocket) {
