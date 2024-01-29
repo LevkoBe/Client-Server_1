@@ -10,7 +10,7 @@ void handleClient(SOCKET clientSocket) {
 	while (true) // New request
 	{
 		bool running = true;
-		char optionType = executor.receiveOptionType(clientSocket);
+		char optionType = CommonMethods::receiveOptionType(clientSocket);
 		std::string message = executor.receiveMessage(clientSocket);
 		switch (optionType)
 		{

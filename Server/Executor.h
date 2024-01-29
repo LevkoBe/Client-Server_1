@@ -38,15 +38,11 @@ public:
 	}
 
 	std::string receiveMessage(SOCKET clientSocket) {
-		return server.receiveChunkedData(clientSocket);
+		return CommonMethods::receiveChunkedData(clientSocket);
 	}
 
 	void sendMessage(const std::string& message, SOCKET clientSocket, const char operationType = '-') {
 		CommonMethods::sendChunkedData(message, 10, operationType, clientSocket);
-	}
-
-	char receiveOptionType(SOCKET clientSocket) {
-		return server.receiveOptionType(clientSocket);
 	}
 
 	void checkFolder(const std::string& username, SOCKET clientSocket) {

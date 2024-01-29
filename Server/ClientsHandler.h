@@ -25,10 +25,4 @@ public:
     SOCKET acceptClientConnection();
 
     ~ClientsHandler();
-
-    char receiveOptionType(SOCKET clientSocket);
-
-    std::string receiveChunkedData(SOCKET clientSocket);
-
-    bool sendChunkedData(const std::string& messageStr, const int chunkSize, const char operationType, SOCKET clientSocket);
 };

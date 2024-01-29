@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include "ServerConnector.h"
+#include "../CommonMethods.h"
 
 /*
 CRUD:
@@ -41,42 +42,42 @@ public:
 	
 	std::string get(const std::string& filename) {
 		std::string messageStr = filename;
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'g');
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'g', client.getClientSocket());
 
 		bool responseIsOver = true;
-		if (client.receiveOptionType() == '+') {
+		if (CommonMethods::receiveOptionType(client.getClientSocket()) == '+') {
 			responseIsOver = false;
 		}
-		messageStr = client.receiveChunkedData(); // content of the file
+		messageStr = CommonMethods::receiveChunkedData(client.getClientSocket()); // content of the file
 
 		while (!responseIsOver) {
-			if (client.receiveOptionType() != '+') {
+			if (CommonMethods::receiveOptionType(client.getClientSocket()) != '+') {
 				responseIsOver = true;
 			}
-			messageStr += client.receiveChunkedData(); // content of the file
+			messageStr += CommonMethods::receiveChunkedData(client.getClientSocket()); // content of the file
 		}
 		return messageStr;
 	}
 
 	std::string authorize(std::string& username) {
 
-		client.sendChunkedData(username, CHUNK_SIZE, 'u');
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::sendChunkedData(username, CHUNK_SIZE, 'u', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 	std::string list(const std::string& filename) {
 		std::string messageStr = filename;
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'l');
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'l', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 	std::string put(const std::string& filename, const std::string& content) { // creates file with data
 		std::string messageStr = filename + '\n' + content;
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'f', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 
@@ -103,9 +104,9 @@ public:
 				std::cout << "chunk " << indicator << std::endl;
 				std::string message = filename + '\n' + buffer;
 
-				client.sendChunkedData(message, CHUNK_SIZE, indicator);
-				client.receiveOptionType();
-				client.receiveChunkedData();
+				CommonMethods::sendChunkedData(message, CHUNK_SIZE, indicator, client.getClientSocket());
+				CommonMethods::receiveOptionType(client.getClientSocket());
+				CommonMethods::receiveChunkedData(client.getClientSocket());
 				indicator = 'a';
 			}
 		}
@@ -116,9 +117,9 @@ public:
 
 	std::string add(const std::string& filename, const std::string& content) { // creates file with data
 		std::string messageStr = filename + '\n' + content;
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'a');
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'a', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 	std::string put(const Content type, const std::string& filename) { // creates empty file/folder
@@ -126,34 +127,34 @@ public:
 		switch (type) {
 		case File:
 			messageStr += '\n';
-			client.sendChunkedData(messageStr, CHUNK_SIZE, 'f');
+			CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'f', client.getClientSocket());
 			break;
 		case Directory:
-			client.sendChunkedData(messageStr, CHUNK_SIZE, 'd');
+			CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'd', client.getClientSocket());
 			break;
 		}
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 	std::string deleteFile(const std::string& filename) {
 		std::string messageStr = filename; // remove
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'r');
-		client.receiveOptionType();
-		return client.receiveChunkedData();
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'r', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		return CommonMethods::receiveChunkedData(client.getClientSocket());
 	}
 
 	std::string info(const std::string& filename) {
 		std::string messageStr = filename;
-		client.sendChunkedData(messageStr, CHUNK_SIZE, 'i');
-		client.receiveOptionType();
-		std::string info = client.receiveChunkedData();
+		CommonMethods::sendChunkedData(messageStr, CHUNK_SIZE, 'i', client.getClientSocket());
+		CommonMethods::receiveOptionType(client.getClientSocket());
+		std::string info = CommonMethods::receiveChunkedData(client.getClientSocket());
 		return info;
 	}
 
 	void stop() {
 		std::string hack = "###Stop the server###";
-		client.sendChunkedData(hack, CHUNK_SIZE, '-');
+		CommonMethods::sendChunkedData(hack, CHUNK_SIZE, '-', client.getClientSocket());
 	}
 };
 
