@@ -3,6 +3,7 @@
 #include <iostream>
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
+#include <conio.h>
 
 // Linking the library needed for network communication
 #pragma comment(lib, "ws2_32.lib")
@@ -49,9 +50,11 @@ public:
 		serverAddr.sin_port = htons(port);
 		InetPton(AF_INET, serverIp, &serverAddr.sin_addr);
 
-		if (connect(clientSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
-			std::cerr << "Connect failed with error: " << WSAGetLastError() << std::endl;
-			return false;
+		while (connect(clientSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
+			std::cerr << "\nConnect failed with error: " << WSAGetLastError() << std::endl;
+			std::cerr << "Please, press any key to retry. " << std::endl;
+			std::cout << _getch() << std::endl;
+			//return false;
 		}
 		return true;
 	}
