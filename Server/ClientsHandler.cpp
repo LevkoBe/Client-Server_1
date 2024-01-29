@@ -79,6 +79,9 @@ char ClientsHandler::receiveOptionType(SOCKET clientSocket)
     // Receive data from the client
     char option;
     int bytesReceived = recv(clientSocket, reinterpret_cast<char*>(&option), sizeof(char), 0);
+    if (bytesReceived == SOCKET_ERROR) {
+        return '-';
+    }
     if (bytesReceived > 0)
     {
         m.lock();

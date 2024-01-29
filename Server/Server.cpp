@@ -55,18 +55,13 @@ int main()
 {
 
 	std::vector<std::thread> threads;
-	// Accept and handle incoming connections
 	while (true) {
-		// Accept a client connection
 		SOCKET clientSocket = executor.acceptClientConnection();
 		if (clientSocket == INVALID_SOCKET) {
-			//std::cerr << "Error accepting client connection: " << strerror(errno) << std::endl;
 			continue;
 		}
-		// Create a new thread to handle the client
 		threads.emplace_back(handleClient, clientSocket);
 	}
-	// Join threads to wait for their completion (this won't be reached in this example)
 	for (auto& thread : threads) {
 		thread.join();
 	}
