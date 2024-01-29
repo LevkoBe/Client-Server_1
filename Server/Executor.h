@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctime>
 #include "ClientsHandler.h"
+#include "../CommonMethods.h"
 
 namespace fs = std::filesystem;
 
@@ -41,7 +42,7 @@ public:
 	}
 
 	void sendMessage(const std::string& message, SOCKET clientSocket, const char operationType = '-') {
-		server.sendChunkedData(message, 10, operationType, clientSocket);
+		CommonMethods::sendChunkedData(message, 10, operationType, clientSocket);
 	}
 
 	char receiveOptionType(SOCKET clientSocket) {

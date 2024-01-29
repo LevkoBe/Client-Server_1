@@ -31,6 +31,15 @@ ClientsHandler::ClientsHandler()
     // if (!acceptClientConnection()) return;
 }
 
+ClientsHandler::~ClientsHandler()
+{
+    for (auto& clientSocket : clientSockets) {
+        closesocket(clientSocket);
+    }
+    closesocket(serverSocket);
+    WSACleanup();
+}
+
 bool ClientsHandler::bindSocket()
 {
     sockaddr_in serverAddr;
@@ -66,8 +75,6 @@ SOCKET ClientsHandler::acceptClientConnection()
     if (clientSocket == INVALID_SOCKET)
     {
         std::cerr << "Accept failed with error: " << WSAGetLastError() << std::endl;
-        //closesocket(serverSocket);
-        //WSACleanup();
         return INVALID_SOCKET;
     }
     clientSockets.push_back(clientSocket);
@@ -191,14 +198,4 @@ bool ClientsHandler::sendChunkedData(const std::string& messageStr, const int ch
     }
 
     return true;
-}
-
-ClientsHandler::~ClientsHandler()
-{
-    for (auto& clientSocket : clientSockets)
-    {
-        closesocket(clientSocket);
-    }
-    closesocket(serverSocket);
-    WSACleanup();
 }
